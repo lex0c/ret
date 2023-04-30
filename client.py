@@ -1,10 +1,15 @@
-import socket, sys, argparse
+import socket, sys, argparse, struct
 
 
 def send_code(code, host, port):
+    encoded_code = code.encode('utf-8')
+    code_length = len(encoded_code)
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         client_socket.connect((host, port))
-        client_socket.sendall(code.encode('utf-8'))
+
+        client_socket.sendall(struct.pack("!I", code_length))
+        client_socket.sendall(encoded_code)
 
         data = client_socket.recv(1024)
 

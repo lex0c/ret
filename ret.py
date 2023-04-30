@@ -2,6 +2,7 @@ import socket
 import threading
 import io
 import sys
+import struct
 
 
 def execute_code(code, conn):
@@ -13,18 +14,42 @@ def execute_code(code, conn):
         output_str = output.getvalue()
         conn.sendall(output_str.encode('utf-8'))
     except Exception as e:
-        conn.sendall(e.encode('utf-8'))
+        conn.sendall(str(e).encode('utf-8'))
+
+
+def recv_exactly(conn, num_bytes):
+    received_data = b''
+
+    while len(received_data) < num_bytes:
+        chunk = conn.recv(num_bytes - len(received_data))
+
+        if not chunk:
+            break
+
+        received_data += chunk
+
+    return received_data
+
+
+def recv_data(conn):
+    data_length_bytes = recv_exactly(conn, 4)
+
+    if len(data_length_bytes) < 4:
+        return None
+
+    data_length = struct.unpack("!I", data_length_bytes)[0]
+    data = recv_exactly(conn, data_length)
+
+    return data.decode('utf-8')
 
 
 def handle_client(conn, addr):
     with conn:
         while True:
-            data = conn.recv(1024)
+            code = recv_data(conn)
 
-            if not data:
+            if not code:
                 break
-
-            code = data.decode('utf-8')
 
             code_thread = threading.Thread(target=execute_code, args=(code, conn))
             code_thread.start()
@@ -36,7 +61,6 @@ def main():
     with open('./hosts', 'r') as file:
         for line in file:
             host = line.rstrip()
-            print(host)
 
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
