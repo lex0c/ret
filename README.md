@@ -4,11 +4,6 @@ The RET allows you to execute Python code remotely on a server. It consists of t
 
 ## Usage
 
-Install deps:
-```sh
-pip install -r requirements.txt
-```
-
 Start the server by running the `ret.py` script:
 ```sh
 python ret.py
@@ -28,5 +23,5 @@ The client script reads the content of the specified module file, sends it to th
 
 The server script `ret.py` listens for incoming connections and creates a new thread for each client. Each thread receives the code from the client, executes it in a separate thread, and sends the output back to the client.
 
-**ps**: The hosts file replaces a DGA algorithm.
+**PS**: The hosts file replaces a DGA algorithm.
 
