@@ -1,4 +1,7 @@
-import socket, sys, argparse, struct
+import socket
+import sys
+import argparse
+import struct
 
 
 def recv_exactly(conn, num_bytes):
@@ -63,17 +66,13 @@ def replace_vars(content, args):
     return new_content
 
 
-def parse_arguments():
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", required=True, help="Host address of the RET")
     parser.add_argument("--port", required=True, type=int, help="Port number of the RET")
     parser.add_argument("--module", required=True, help="Path to the module file")
     parser.add_argument("--values", type=str, nargs="+", help="Replace template vars")
-    return parser.parse_args()
-
-
-if __name__ == "__main__":
-    args = parse_arguments()
+    args = parser.parse_args()
 
     host    = args.host
     port    = args.port
