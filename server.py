@@ -3,6 +3,19 @@ import threading
 import io
 import sys
 import struct
+import gc
+import random
+import string
+
+
+def overwrite_memory(var):
+    if isinstance(var, str):
+        dummy_str = ''.join(random.choices(string.ascii_letters, k=len(var)))
+        var = dummy_str
+    elif isinstance(var, io.StringIO):
+        var.truncate(0)
+        var.write(''.join(random.choices(string.ascii_letters, k=1000)))
+    return var
 
 
 def execute_code(code, conn):
@@ -16,6 +29,12 @@ def execute_code(code, conn):
         conn.sendall(output_str.encode('utf-8'))
     except Exception as e:
         conn.sendall(str(e).encode('utf-8'))
+    finally:
+        output_str = overwrite_memory(output_str)
+        output = overwrite_memory(output)
+        code = overwrite_memory(code)
+        del output, output_str, code
+        gc.collect()
 
 
 def recv_exactly(conn, num_bytes):
