@@ -4,9 +4,9 @@ The RET allows you to execute Python code remotely on a server. It consists of t
 
 ## Usage
 
-Start the server by running the `ret.py` script:
+Start the server by running the `server.py` script:
 ```sh
-python ret.py
+python server.py
 ```
 
 Run the client script with the required arguments:
@@ -16,12 +16,11 @@ python client.py --host <host> --port <port> --module <module_file_path>
 - `--host`: The host address of the RET server
 - `--port`: The port number of the RET server
 - `--module`: The path to the module file to be executed remotely
+- `--values`: Replace template vars
 
 The client script reads the content of the specified module file, sends it to the server, and then prints the output returned by the server.
 
 ### RET
 
-The server script `ret.py` listens for incoming connections and creates a new thread for each client. Each thread receives the code from the client, executes it in a separate thread, and sends the output back to the client.
-
-**PS**: The hosts file replaces a DGA algorithm.
+The server script `server.py` listens for incoming connections and creates a new thread for each client. Each thread receives the code from the client, executes it in a separate thread, and sends the output back to the client.
 

