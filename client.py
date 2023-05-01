@@ -1,19 +1,44 @@
 import socket, sys, argparse, struct
 
 
-def send_code(code, host, port):
-    encoded_code = code.encode('utf-8')
-    code_length = len(encoded_code)
+def recv_exactly(conn, num_bytes):
+    received_data = b''
 
+    while len(received_data) < num_bytes:
+        chunk = conn.recv(num_bytes - len(received_data))
+
+        if not chunk:
+            break
+
+        received_data += chunk
+
+    return received_data
+
+
+def recv_data(conn):
+    data_length_bytes = recv_exactly(conn, 4)
+
+    if len(data_length_bytes) < 4:
+        return None
+
+    data_length = struct.unpack("!I", data_length_bytes)[0]
+    data = recv_exactly(conn, data_length)
+
+    return data.decode('utf-8')
+
+
+def send_code(code, host, port):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
         client_socket.connect((host, port))
 
-        client_socket.sendall(struct.pack("!I", code_length))
+        encoded_code = code.encode('utf-8')
+
+        client_socket.sendall(struct.pack("!I", len(encoded_code)))
         client_socket.sendall(encoded_code)
 
-        data = client_socket.recv(1024)
+        resp = recv_data(client_socket)
 
-        print(data.decode('utf-8'))
+        print(resp)
 
 
 def load_file(file_path):

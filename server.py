@@ -12,6 +12,7 @@ def execute_code(code, conn):
         exec(code)
         sys.stdout = sys.__stdout__
         output_str = output.getvalue()
+        conn.sendall(struct.pack("!I", len(output_str)))
         conn.sendall(output_str.encode('utf-8'))
     except Exception as e:
         conn.sendall(str(e).encode('utf-8'))
